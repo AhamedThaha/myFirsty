@@ -16,6 +16,33 @@ var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
 // Create bot dialogs
-bot.dialog('/', function (session) {
-    session.send("Hello World");
-});
+bot.dialog('/', [
+    function (session) {
+        session.send("Hello, I am Ahamed Thaha's First Bot.");
+        builder.Prompts.text(session, "What's your name?");
+    },
+    function (session, results) {
+        session.userData.name = results.response;
+        builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?"); 
+    },
+    function (session, results) {
+        session.userData.coding = results.response;
+        builder.Prompts.choice(session, "What language do you code using?", ["Java", "DotNet", "PHP"]);
+    },
+    function (session, results) {
+        session.userData.language = results.response.entity;
+        session.send("Got it... " + session.userData.name + 
+                     " you've been programming for " + session.userData.coding + 
+                     " years and use " + session.userData.language + ".");
+        builder.Prompts.text(session, "Now Say, goodbye to end the conversation");
+    },
+    function (session, results) {
+        session.userData.endmessage = results.response;
+        if (results.response && session.userData.endmessage == 'goodbye') {
+           // Exit
+            session.endDialog();
+        }else{
+             builder.Prompts.text(session, session.userData.name + " please say goodbye");
+        }
+    }
+]);
